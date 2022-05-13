@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "author": "Artem Lapko",
   "license": "MIT",
-  "type": "module",
   "main": "dist/index.js",
   "types": "src/index.ts",
   "scripts": {
