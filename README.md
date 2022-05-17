@@ -26,8 +26,8 @@ as the local secret. This produces the signature.
 ```mermaid
 sequenceDiagram
     Note over Client: generate Ed25519 key pair
-    Client->>Server: send key to
     Note over Server: generate Ed25519 key pair
+    Client->>Server: send key to
     Note over Server: apply addPublicKey with both keys
     Server->>Client: send combined key back
     Client->>Blockchain: add combined key
