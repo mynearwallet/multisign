@@ -1,6 +1,5 @@
 export declare type FE = Float64Array;
 export declare type GE = [FE, FE, FE, FE];
-export declare function randombytes(r: Uint8Array): void;
 export declare function gf(init?: number[]): FE;
 export declare const gf0: Float64Array, gf1: Float64Array, D: Float64Array, D2: Float64Array, X: Float64Array, Y: Float64Array, I: Float64Array;
 export declare function Z(o: FE, a: FE, b: FE): void;

@@ -64,9 +64,9 @@ exports.addPublicKeys = addPublicKeys;
  * the "data" to be sent to the server. This is always STEP1_DATA_LEN bytes long.
  * the "secret" is an opaque value that the client should keep. This data should be stored IN MEMORY ONLY and only used ONCE.
  */
-function multiSignStep1() {
+function multiSignStep1(randombytes) {
     let p = [(0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)()], r = new Uint8Array(32), s = new Uint8Array(64);
-    (0, crypto_1.randombytes)(s);
+    randombytes(s);
     (0, crypto_1.reduce)(s);
     (0, crypto_1.scalarbase)(p, s);
     (0, crypto_1.pack)(r, p);
@@ -85,7 +85,7 @@ exports.multiSignStep1 = multiSignStep1;
  * @returns {Uint8Array|null} the data to be sent to the client. This is always STEP2_DATA_LEN bytes long.
  * If the argument values are invalid, returns null or a meaningless value.
  */
-function multiSignStep2(step1data, msg, publicKey, secretKey) {
+function multiSignStep2(step1data, msg, publicKey, secretKey, randombytes) {
     let p = [(0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)()], q = [(0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)()], r = new Uint8Array(64), n = msg.length, b = new Uint8Array(64 + n), h = new Uint8Array(64), x = new Float64Array(64);
     if (step1data.length != 32 ||
         publicKey.length != 32 ||
@@ -95,7 +95,7 @@ function multiSignStep2(step1data, msg, publicKey, secretKey) {
     }
     (0, crypto_1.Z)(p[0], crypto_1.gf0, p[0]);
     (0, crypto_1.Z)(p[3], crypto_1.gf0, p[3]);
-    (0, crypto_1.randombytes)(r);
+    randombytes(r);
     (0, crypto_1.reduce)(r);
     for (let i = 0; i < 32; i++)
         x[i] = r[i];

@@ -1,19 +1,6 @@
 export type FE = Float64Array;
 export type GE = [FE, FE, FE, FE];
 
-function getRandomValues (r: Uint8Array) {
-  for (let i = 0, l = r.length; i < l; i++) {
-    r[i] = Math.floor(Math.random() * 256);
-  }
-  return r;
-}
-
-export function randombytes(r: Uint8Array) {
-  for (let i = 0; i < r.length; i += 65536) {
-    getRandomValues(r.subarray(i, i + 65536));
-  }
-};
-
 export function gf (init?: number[]): FE {
   var i,
     r = new Float64Array(16);

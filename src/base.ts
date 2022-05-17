@@ -32,7 +32,6 @@ import {
   gf0,
   modL,
   pack,
-  randombytes,
   reduce,
   scalarbase,
   unpackneg,
@@ -86,7 +85,9 @@ export function addPublicKeys(
  * the "data" to be sent to the server. This is always STEP1_DATA_LEN bytes long.
  * the "secret" is an opaque value that the client should keep. This data should be stored IN MEMORY ONLY and only used ONCE.
  */
-export function multiSignStep1(): { data: Uint8Array; secret: Secret } {
+export function multiSignStep1(
+    randombytes: (r: Uint8Array) => void,
+): { data: Uint8Array; secret: Secret } {
   let p: GE = [gf(), gf(), gf(), gf()],
     r = new Uint8Array(32),
     s = new Uint8Array(64);
@@ -113,7 +114,8 @@ export function multiSignStep2(
   step1data: Uint8Array,
   msg: Uint8Array,
   publicKey: Uint8Array,
-  secretKey: Uint8Array
+  secretKey: Uint8Array,
+  randombytes: (r: Uint8Array) => void,
 ): Uint8Array | null {
   let p: GE = [gf(), gf(), gf(), gf()],
     q: GE = [gf(), gf(), gf(), gf()],
