@@ -1,19 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unpackneg = exports.reduce = exports.modL = exports.scalarbase = exports.pack = exports.add = exports.crypto_hash = exports.Z = exports.I = exports.Y = exports.X = exports.D2 = exports.D = exports.gf1 = exports.gf0 = exports.gf = exports.randombytes = void 0;
-function getRandomValues(r) {
-    for (let i = 0, l = r.length; i < l; i++) {
-        r[i] = Math.floor(Math.random() * 256);
-    }
-    return r;
-}
-function randombytes(r) {
-    for (let i = 0; i < r.length; i += 65536) {
-        getRandomValues(r.subarray(i, i + 65536));
-    }
-}
-exports.randombytes = randombytes;
-;
+exports.unpackneg = exports.reduce = exports.modL = exports.scalarbase = exports.pack = exports.add = exports.crypto_hash = exports.Z = exports.I = exports.Y = exports.X = exports.D2 = exports.D = exports.gf1 = exports.gf0 = exports.gf = void 0;
 function gf(init) {
     var i, r = new Float64Array(16);
     if (init)

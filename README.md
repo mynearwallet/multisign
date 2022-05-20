@@ -23,13 +23,11 @@ to multiSignStep2. This produces some data that needs to be sent to the client.
 - The client calls multiSignStep3, passing the data from the server as well
 as the local secret. This produces the signature.
 
-
-
 ```mermaid
 sequenceDiagram
     Note over Client: generate Ed25519 key pair
-    Client->>Server: send key to
     Note over Server: generate Ed25519 key pair
+    Client->>Server: send key to
     Note over Server: apply addPublicKey with both keys
     Server->>Client: send combined key back
     Client->>Blockchain: add combined key
@@ -47,7 +45,6 @@ sequenceDiagram
 See the comments above to specific methods for more details.
 
 ## Methods
-
 ```typescript
 /**
  * Adds two public keys together, producing the combined key. The order of the keys does not matter.

@@ -9,6 +9,6 @@
     "outDir": "dist",
     "declaration": true
   },
-  "include": ["src"],
+  "include": ["src", "server.ts", "client.ts"],
   "exclude": ["node_modules"]
 }

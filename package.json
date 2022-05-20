@@ -3,9 +3,17 @@
   "version": "1.0.0",
   "author": "Artem Lapko",
   "license": "MIT",
-  "main": "dist/index.js",
-  "types": "src/index.ts",
+  "exports": {
+    ".": "./dist/base.js",
+    "./server": "./dist/server.js",
+    "./client": "./dist/client.js"
+  },
+  "types": "src/base.ts",
   "scripts": {
     "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.34",
+    "typescript": "^4.6.4"
   }
 }

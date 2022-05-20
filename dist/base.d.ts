@@ -25,7 +25,7 @@ export declare function addPublicKeys(publicKey1: Uint8Array, publicKey2: Uint8A
  * the "data" to be sent to the server. This is always STEP1_DATA_LEN bytes long.
  * the "secret" is an opaque value that the client should keep. This data should be stored IN MEMORY ONLY and only used ONCE.
  */
-export declare function multiSignStep1(): {
+export declare function multiSignStep1(randombytes: (r: Uint8Array) => void): {
     data: Uint8Array;
     secret: Secret;
 };
@@ -41,7 +41,7 @@ export declare function multiSignStep1(): {
  * @returns {Uint8Array|null} the data to be sent to the client. This is always STEP2_DATA_LEN bytes long.
  * If the argument values are invalid, returns null or a meaningless value.
  */
-export declare function multiSignStep2(step1data: Uint8Array, msg: Uint8Array, publicKey: Uint8Array, secretKey: Uint8Array): Uint8Array | null;
+export declare function multiSignStep2(step1data: Uint8Array, msg: Uint8Array, publicKey: Uint8Array, secretKey: Uint8Array, randombytes: (r: Uint8Array) => void): Uint8Array | null;
 /**
  * Performs the third step of the two-party signature generation algorithm. This step is performed by the client.
  *
