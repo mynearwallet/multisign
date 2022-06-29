@@ -1,7 +1,4 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.multiSignStep3 = exports.multiSignStep2 = exports.multiSignStep1 = exports.addPublicKeys = exports.STEP2_DATA_LEN = exports.STEP1_DATA_LEN = void 0;
 /**
@@ -30,12 +27,7 @@ exports.multiSignStep3 = exports.multiSignStep2 = exports.multiSignStep1 = expor
  *
  * See the comments above to specific methods for more details.
  */
-const tweetnacl_1 = __importDefault(require("tweetnacl"));
 const crypto_1 = require("./lib/crypto");
-const { add, crypto_hash, gf, modL, scalarbase
-// @ts-ignore no types for lowlevel
-// https://github.com/dchest/tweetnacl-js/blob/master/nacl.d.ts
- } = tweetnacl_1.default.lowlevel;
 exports.STEP1_DATA_LEN = 32, exports.STEP2_DATA_LEN = 64;
 /**
  * Adds two public keys together, producing the combined key. The order of the keys does not matter.
@@ -47,14 +39,14 @@ exports.STEP1_DATA_LEN = 32, exports.STEP2_DATA_LEN = 64;
  * If the argument values are invalid, returns null or a meaningless value
  */
 function addPublicKeys(publicKey1, publicKey2) {
-    let p = [gf(), gf(), gf(), gf()], q = [gf(), gf(), gf(), gf()], r = new Uint8Array(32);
+    let p = [(0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)()], q = [(0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)()], r = new Uint8Array(32);
     if (publicKey1.length != 32 ||
         publicKey2.length != 32 ||
         (0, crypto_1.unpackneg)(p, publicKey1) ||
         (0, crypto_1.unpackneg)(q, publicKey2)) {
         return null;
     }
-    add(p, q);
+    (0, crypto_1.add)(p, q);
     (0, crypto_1.Z)(p[0], crypto_1.gf0, p[0]);
     (0, crypto_1.pack)(r, p);
     return r;
@@ -73,10 +65,10 @@ exports.addPublicKeys = addPublicKeys;
  * the "secret" is an opaque value that the client should keep. This data should be stored IN MEMORY ONLY and only used ONCE.
  */
 function multiSignStep1(randombytes) {
-    let p = [gf(), gf(), gf(), gf()], r = new Uint8Array(32), s = new Uint8Array(64);
+    let p = [(0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)()], r = new Uint8Array(32), s = new Uint8Array(64);
     randombytes(s);
     (0, crypto_1.reduce)(s);
-    scalarbase(p, s);
+    (0, crypto_1.scalarbase)(p, s);
     (0, crypto_1.pack)(r, p);
     return { data: r, secret: s };
 }
@@ -94,7 +86,7 @@ exports.multiSignStep1 = multiSignStep1;
  * If the argument values are invalid, returns null or a meaningless value.
  */
 function multiSignStep2(step1data, msg, publicKey, secretKey, randombytes) {
-    let p = [gf(), gf(), gf(), gf()], q = [gf(), gf(), gf(), gf()], r = new Uint8Array(64), n = msg.length, b = new Uint8Array(64 + n), h = new Uint8Array(64), x = new Float64Array(64);
+    let p = [(0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)()], q = [(0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)(), (0, crypto_1.gf)()], r = new Uint8Array(64), n = msg.length, b = new Uint8Array(64 + n), h = new Uint8Array(64), x = new Float64Array(64);
     if (step1data.length != 32 ||
         publicKey.length != 32 ||
         secretKey.length != 64 ||
@@ -107,14 +99,14 @@ function multiSignStep2(step1data, msg, publicKey, secretKey, randombytes) {
     (0, crypto_1.reduce)(r);
     for (let i = 0; i < 32; i++)
         x[i] = r[i];
-    scalarbase(q, r);
-    add(p, q);
+    (0, crypto_1.scalarbase)(q, r);
+    (0, crypto_1.add)(p, q);
     (0, crypto_1.pack)(b, p);
     b.set(publicKey, 32);
     b.set(msg, 64);
-    crypto_hash(h, b, b.length);
+    (0, crypto_1.crypto_hash)(h, b, b.length);
     (0, crypto_1.reduce)(h);
-    crypto_hash(r, secretKey, 32);
+    (0, crypto_1.crypto_hash)(r, secretKey, 32);
     r[0] &= 248;
     r[31] &= 127;
     r[31] |= 64;
@@ -124,7 +116,7 @@ function multiSignStep2(step1data, msg, publicKey, secretKey, randombytes) {
         }
     }
     r.set(b.subarray(0, 32));
-    modL(r.subarray(32), x);
+    (0, crypto_1.modL)(r.subarray(32), x);
     return r;
 }
 exports.multiSignStep2 = multiSignStep2;
@@ -150,9 +142,9 @@ function multiSignStep3(step2data, secret, msg, publicKey, secretKey) {
     b.set(step2data.subarray(0, 32));
     b.set(publicKey, 32);
     b.set(msg, 64);
-    crypto_hash(h, b, b.length);
+    (0, crypto_1.crypto_hash)(h, b, b.length);
     (0, crypto_1.reduce)(h);
-    crypto_hash(b, secretKey, 32);
+    (0, crypto_1.crypto_hash)(b, secretKey, 32);
     b[0] &= 248;
     b[31] &= 127;
     b[31] |= 64;
@@ -164,7 +156,7 @@ function multiSignStep3(step2data, secret, msg, publicKey, secretKey) {
         }
     }
     h.set(step2data.subarray(0, 32));
-    modL(h.subarray(32), x);
+    (0, crypto_1.modL)(h.subarray(32), x);
     return h;
 }
 exports.multiSignStep3 = multiSignStep3;
