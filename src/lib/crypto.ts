@@ -1,17 +1,12 @@
-import nacl from 'tweetnacl';
-
-const {
-  add,
-  crypto_hash,
-  gf,
-  modL,
-  scalarbase
-  // @ts-ignore no types for lowlevel
-  // https://github.com/dchest/tweetnacl-js/blob/master/nacl.d.ts
-} = nacl.lowlevel;
-
 export type FE = Float64Array;
 export type GE = [FE, FE, FE, FE];
+
+export function gf (init?: number[]): FE {
+  var i,
+    r = new Float64Array(16);
+  if (init) for (i = 0; i < init.length; i++) r[i] = init[i];
+  return r;
+}
 
 export const gf0 = gf(),
   gf1 = gf([1]),
@@ -1141,6 +1136,79 @@ function crypto_hashblocks_hl(
   return n;
 }
 
+export function crypto_hash(out: Uint8Array, m: Uint8Array, n: number): 0 {
+  var hh = new Int32Array(8),
+    hl = new Int32Array(8),
+    x = new Uint8Array(256),
+    i,
+    b = n;
+
+  hh[0] = 0x6a09e667;
+  hh[1] = 0xbb67ae85;
+  hh[2] = 0x3c6ef372;
+  hh[3] = 0xa54ff53a;
+  hh[4] = 0x510e527f;
+  hh[5] = 0x9b05688c;
+  hh[6] = 0x1f83d9ab;
+  hh[7] = 0x5be0cd19;
+
+  hl[0] = 0xf3bcc908;
+  hl[1] = 0x84caa73b;
+  hl[2] = 0xfe94f82b;
+  hl[3] = 0x5f1d36f1;
+  hl[4] = 0xade682d1;
+  hl[5] = 0x2b3e6c1f;
+  hl[6] = 0xfb41bd6b;
+  hl[7] = 0x137e2179;
+
+  crypto_hashblocks_hl(hh, hl, m, n);
+  n %= 128;
+
+  for (i = 0; i < n; i++) x[i] = m[b - n + i];
+  x[n] = 128;
+
+  n = 256 - 128 * (n < 112 ? 1 : 0);
+  x[n - 9] = 0;
+  ts64(x, n - 8, (b / 0x20000000) | 0, b << 3);
+  crypto_hashblocks_hl(hh, hl, x, n);
+
+  for (i = 0; i < 8; i++) ts64(out, 8 * i, hh[i], hl[i]);
+
+  return 0;
+}
+
+export function add (p: GE, q: GE): void {
+  var a = gf(),
+    b = gf(),
+    c = gf(),
+    d = gf(),
+    e = gf(),
+    f = gf(),
+    g = gf(),
+    h = gf(),
+    t = gf();
+
+  Z(a, p[1], p[0]);
+  Z(t, q[1], q[0]);
+  M(a, a, t);
+  A(b, p[0], p[1]);
+  A(t, q[0], q[1]);
+  M(b, b, t);
+  M(c, p[3], q[3]);
+  M(c, c, D2);
+  M(d, p[2], q[2]);
+  A(d, d, d);
+  Z(e, b, a);
+  Z(f, d, c);
+  A(g, d, c);
+  A(h, b, a);
+
+  M(p[0], e, f);
+  M(p[1], h, g);
+  M(p[2], g, f);
+  M(p[3], e, h);
+}
+
 function cswap(p: GE, q: GE, b: number): void {
   var i;
   for (i = 0; i < 4; i++) {
@@ -1174,10 +1242,44 @@ function scalarmult(p: GE, q: GE, s: Uint8Array): void {
   }
 }
 
+export function scalarbase (p: GE, s: Uint8Array): void {
+  var q: GE = [gf(), gf(), gf(), gf()];
+  set25519(q[0], X);
+  set25519(q[1], Y);
+  set25519(q[2], gf1);
+  M(q[3], X, Y);
+  scalarmult(p, q, s);
+}
+
 var L = new Float64Array([
   0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde,
   0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10,
 ]);
+
+export function modL(r: Uint8Array, x: Float64Array): void {
+  var carry, i, j, k;
+  for (i = 63; i >= 32; --i) {
+    carry = 0;
+    for (j = i - 32, k = i - 12; j < k; ++j) {
+      x[j] += carry - 16 * x[i] * L[j - (i - 32)];
+      carry = Math.floor((x[j] + 128) / 256);
+      x[j] -= carry * 256;
+    }
+    x[j] += carry;
+    x[i] = 0;
+  }
+  carry = 0;
+  for (j = 0; j < 32; j++) {
+    x[j] += carry - (x[31] >> 4) * L[j];
+    carry = x[j] >> 8;
+    x[j] &= 255;
+  }
+  for (j = 0; j < 32; j++) x[j] -= carry * L[j];
+  for (i = 0; i < 32; i++) {
+    x[i + 1] += x[i] >> 8;
+    r[i] = x[i] & 255;
+  }
+}
 
 export function reduce (r: Uint8Array): void {
   var x = new Float64Array(64),
