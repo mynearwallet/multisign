@@ -24,19 +24,26 @@
  *
  * See the comments above to specific methods for more details.
  */
+import nacl from 'tweetnacl';
+
 import {
-  add,
-  crypto_hash,
   GE,
-  gf,
   gf0,
-  modL,
   pack,
   reduce,
-  scalarbase,
   unpackneg,
   Z
 } from './lib/crypto';
+
+const {
+  add,
+  crypto_hash,
+  gf,
+  modL,
+  scalarbase
+  // @ts-ignore no types for lowlevel
+  // https://github.com/dchest/tweetnacl-js/blob/master/nacl.d.ts
+} = nacl.lowlevel;
 
 declare const secretTag: unique symbol;
 export type Secret = { [secretTag]: true };
