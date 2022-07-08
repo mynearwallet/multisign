@@ -6,13 +6,11 @@ import {
     multiSignStep3
 } from './server';
 
-describe('', function () {
-    it('', () => {
+describe('integration tests', function () {
+    it('multisign with 1-2-3 steps', () => {
         const message = new Uint8Array([42, 42, 42]);
 
-        // @ts-ignore
         const kp1 = nacl.sign.keyPair();
-        // @ts-ignore
         const kp2 = nacl.sign.keyPair();
 
         const combinedKey = addPublicKeys(
@@ -48,7 +46,6 @@ describe('', function () {
             throw new Error('Signature should not to be null');
         }
 
-        // @ts-ignore
         const nacltest = nacl.sign.detached.verify(
             message,
             signature,
