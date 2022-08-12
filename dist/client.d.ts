@@ -1,4 +1,8 @@
+import * as NearApiJs from 'near-api-js';
 import { addPublicKeys as addPublicKeysBase, multiSignStep3 as multiSignStep3Base } from './src/base';
+export declare type AuthData = {
+    goog: string;
+};
 export declare const addPublicKeys: typeof addPublicKeysBase;
 export declare const multiSignStep1: () => {
     data: Uint8Array;
@@ -6,3 +10,6 @@ export declare const multiSignStep1: () => {
 };
 export declare const multiSignStep2: (step1data: Uint8Array, msg: Uint8Array, publicKey: Uint8Array, secretKey: Uint8Array) => Uint8Array | null;
 export declare const multiSignStep3: typeof multiSignStep3Base;
+export declare const signAndSendTransaction: (accountId: string, reciever: string, action: NearApiJs.transactions.Action | NearApiJs.transactions.Action[], auth?: import("./src/api/confidant-service").AuthData | undefined) => Promise<void>;
+export declare const functionCall: typeof NearApiJs.transactions.functionCall;
+export declare const transfer: typeof NearApiJs.transactions.transfer;

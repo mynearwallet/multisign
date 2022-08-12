@@ -1,10 +1,49 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.unpackneg = exports.reduce = exports.pack = exports.Z = exports.I = exports.Y = exports.X = exports.D2 = exports.D = exports.gf1 = exports.gf0 = void 0;
 const tweetnacl_1 = __importDefault(require("tweetnacl"));
+const NearApiJs = __importStar(require("near-api-js"));
+/**
+ * Wrapper for Ed25519 KeyPairs from NearApiJs
+ * cause lib have no generic types
+ */
+class createKeyPairEd25519 {
+    static fromString(secretKey) {
+        return NearApiJs.utils.KeyPairEd25519
+            /**
+             * No generic type
+             * @link {https://github.com/near/near-api-js/blob/master/src/utils/key_pair.ts#L85}
+             */
+            .fromString(secretKey);
+    }
+}
+exports.default = createKeyPairEd25519;
 const { add, crypto_hash, gf, modL, scalarbase
 // @ts-ignore no types for lowlevel
 // https://github.com/dchest/tweetnacl-js/blob/master/nacl.d.ts
