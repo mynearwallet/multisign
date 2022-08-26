@@ -1,8 +1,24 @@
 {
   "name": "multisign",
-  "version": "1.0.0",
-  "author": "Artem Lapko",
-  "license": "MIT",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@stash.msk.avito.ru:7999/rise/ads-waterfall.git"
+  },
+  "author": {
+    "name": "Artem",
+    "email": "artem@mynearwallet.com"
+  },
+  "maintainers": [
+    {
+      "name": "George",
+      "email": "george@mynearwallet.com"
+    },
+    {
+      "name": "Den Illin",
+      "email": "den.illin@mynearwallet.com"
+    }
+  ],
   "exports": {
     ".": "./dist/base.js",
     "./server": "./dist/server.js",
@@ -10,10 +26,17 @@
   },
   "types": "src/base.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest",
+    "prepublishOnly": "npm install && npm run test && npm run build"
   },
   "devDependencies": {
+    "@types/jest": "^28.1.3",
     "@types/node": "^17.0.34",
-    "typescript": "^4.6.4"
-  }
+    "jest": "^28.1.2",
+    "ts-jest": "^28.0.5",
+    "typescript": "^4.6.4",
+    "tweetnacl": "^1.0.3"
+  },
+  "license": "MIT"
 }
