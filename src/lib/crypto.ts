@@ -1,3 +1,7 @@
+/**
+ * Pasted from tweetnacl-js
+ * @link {https://github.com/dchest/tweetnacl-js/blob/master/nacl.js}
+ */
 export type FE = Float64Array;
 export type GE = [FE, FE, FE, FE];
 

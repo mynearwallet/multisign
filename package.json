@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "repository": {
     "type": "git",
-    "url": "ssh://git@stash.msk.avito.ru:7999/rise/ads-waterfall.git"
+    "url": "git@github.com:mynearwallet/multisign.git"
   },
   "author": {
     "name": "Artem",
@@ -16,7 +16,7 @@
     },
     {
       "name": "Den Illin",
-      "email": "den.illin@mynearwallet.com"
+      "email": "den.ilin@mynearwallet.com"
     }
   ],
   "exports": {
