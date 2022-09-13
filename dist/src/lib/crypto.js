@@ -1,14 +1,14 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unpackneg = exports.reduce = exports.pack = exports.Z = exports.I = exports.Y = exports.X = exports.D2 = exports.D = exports.gf1 = exports.gf0 = void 0;
-const tweetnacl_1 = __importDefault(require("tweetnacl"));
-const { add, crypto_hash, gf, modL, scalarbase
-// @ts-ignore no types for lowlevel
-// https://github.com/dchest/tweetnacl-js/blob/master/nacl.d.ts
- } = tweetnacl_1.default.lowlevel;
+exports.unpackneg = exports.reduce = exports.modL = exports.scalarbase = exports.pack = exports.add = exports.crypto_hash = exports.Z = exports.I = exports.Y = exports.X = exports.D2 = exports.D = exports.gf1 = exports.gf0 = exports.gf = void 0;
+function gf(init) {
+    var i, r = new Float64Array(16);
+    if (init)
+        for (i = 0; i < init.length; i++)
+            r[i] = init[i];
+    return r;
+}
+exports.gf = gf;
 exports.gf0 = gf(), exports.gf1 = gf([1]), exports.D = gf([
     0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898,
     0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f, 0x6cee, 0x5203,
@@ -917,6 +917,60 @@ function crypto_hashblocks_hl(hh, hl, m, n) {
     }
     return n;
 }
+function crypto_hash(out, m, n) {
+    var hh = new Int32Array(8), hl = new Int32Array(8), x = new Uint8Array(256), i, b = n;
+    hh[0] = 0x6a09e667;
+    hh[1] = 0xbb67ae85;
+    hh[2] = 0x3c6ef372;
+    hh[3] = 0xa54ff53a;
+    hh[4] = 0x510e527f;
+    hh[5] = 0x9b05688c;
+    hh[6] = 0x1f83d9ab;
+    hh[7] = 0x5be0cd19;
+    hl[0] = 0xf3bcc908;
+    hl[1] = 0x84caa73b;
+    hl[2] = 0xfe94f82b;
+    hl[3] = 0x5f1d36f1;
+    hl[4] = 0xade682d1;
+    hl[5] = 0x2b3e6c1f;
+    hl[6] = 0xfb41bd6b;
+    hl[7] = 0x137e2179;
+    crypto_hashblocks_hl(hh, hl, m, n);
+    n %= 128;
+    for (i = 0; i < n; i++)
+        x[i] = m[b - n + i];
+    x[n] = 128;
+    n = 256 - 128 * (n < 112 ? 1 : 0);
+    x[n - 9] = 0;
+    ts64(x, n - 8, (b / 0x20000000) | 0, b << 3);
+    crypto_hashblocks_hl(hh, hl, x, n);
+    for (i = 0; i < 8; i++)
+        ts64(out, 8 * i, hh[i], hl[i]);
+    return 0;
+}
+exports.crypto_hash = crypto_hash;
+function add(p, q) {
+    var a = gf(), b = gf(), c = gf(), d = gf(), e = gf(), f = gf(), g = gf(), h = gf(), t = gf();
+    Z(a, p[1], p[0]);
+    Z(t, q[1], q[0]);
+    M(a, a, t);
+    A(b, p[0], p[1]);
+    A(t, q[0], q[1]);
+    M(b, b, t);
+    M(c, p[3], q[3]);
+    M(c, c, exports.D2);
+    M(d, p[2], q[2]);
+    A(d, d, d);
+    Z(e, b, a);
+    Z(f, d, c);
+    A(g, d, c);
+    A(h, b, a);
+    M(p[0], e, f);
+    M(p[1], h, g);
+    M(p[2], g, f);
+    M(p[3], e, h);
+}
+exports.add = add;
 function cswap(p, q, b) {
     var i;
     for (i = 0; i < 4; i++) {
@@ -946,10 +1000,45 @@ function scalarmult(p, q, s) {
         cswap(p, q, b);
     }
 }
+function scalarbase(p, s) {
+    var q = [gf(), gf(), gf(), gf()];
+    set25519(q[0], exports.X);
+    set25519(q[1], exports.Y);
+    set25519(q[2], exports.gf1);
+    M(q[3], exports.X, exports.Y);
+    scalarmult(p, q, s);
+}
+exports.scalarbase = scalarbase;
 var L = new Float64Array([
     0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde,
     0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10,
 ]);
+function modL(r, x) {
+    var carry, i, j, k;
+    for (i = 63; i >= 32; --i) {
+        carry = 0;
+        for (j = i - 32, k = i - 12; j < k; ++j) {
+            x[j] += carry - 16 * x[i] * L[j - (i - 32)];
+            carry = Math.floor((x[j] + 128) / 256);
+            x[j] -= carry * 256;
+        }
+        x[j] += carry;
+        x[i] = 0;
+    }
+    carry = 0;
+    for (j = 0; j < 32; j++) {
+        x[j] += carry - (x[31] >> 4) * L[j];
+        carry = x[j] >> 8;
+        x[j] &= 255;
+    }
+    for (j = 0; j < 32; j++)
+        x[j] -= carry * L[j];
+    for (i = 0; i < 32; i++) {
+        x[i + 1] += x[i] >> 8;
+        r[i] = x[i] & 255;
+    }
+}
+exports.modL = modL;
 function reduce(r) {
     var x = new Float64Array(64), i;
     for (i = 0; i < 64; i++)
